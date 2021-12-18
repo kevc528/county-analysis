@@ -1,31 +1,69 @@
 # load libraries
-library(lubridate)
 library(tidyverse)
 
-# load raw case data
-case_data_raw = read_tsv(file = "data/raw/case_data_raw.tsv")
+# load raw counties data
+counties_raw = read_csv(file = "data/raw/counties_raw.csv")
 
-# clean case data
-case_data = case_data_raw %>%
-  na.omit() %>%                               # remove NA values
-  filter(year(date) == 2020) %>%              # keep data from 2020 
-  group_by(fips, county, state) %>%           # group by county
-  summarise(total_cases = sum(cases),         # total cases per county
-            total_deaths = sum(deaths)) %>%   # total deaths per county
-  ungroup() %>%
-  mutate(case_fatality_rate =                 # case_fatality_rate = 
-           total_deaths/total_cases*100) %>%  #  total_deaths/total_cases
-  select(-total_cases, -total_deaths)         # remove intermediate variables
+# remove margin of error columns
+counties_wo_moe = counties_raw %>%
+  select(-ends_with("moe"))
 
-# load raw county health data
-# (omitted from this template)
+# find other columns with the most null values
+counties_wo_moe %>%
+  summarise_all(~sum(is.na(.))) %>%
+  pivot_longer(everything(), names_to = "col_name", values_to = "null_count") %>%
+  arrange(desc(null_count))
 
-# clean county health data
-# (omitted from this template, reading from file instead)
-county_health_data = read_tsv("data/raw/county_health_data.tsv")
+# calculate state averages for columns with null values
+avg_state_poverty = counties_wo_moe %>%
+  select("state", "poverty") %>%
+  na.omit() %>%
+  group_by(state) %>%
+  summarise(avg_poverty = mean(poverty))
+  
+avg_state_poverty_65_and_over = counties_wo_moe %>%
+  select("state", "poverty_65_and_over") %>%
+  na.omit() %>%
+  group_by(state) %>%
+  summarise(avg_poverty_65_and_over = mean(poverty_65_and_over))
 
-# join county health data with case data
-covid_data = inner_join(county_health_data, case_data, by = "fips")
+avg_state_poverty_under_18 = counties_wo_moe %>%
+  select("state", "mean_work_travel") %>%
+  na.omit() %>%
+  group_by(state) %>%
+  summarise(avg_poverty_under_18 = mean(poverty_under_18))
+
+avg_state_mean_work_travel = counties_wo_moe %>%
+  select("state", "mean_work_travel") %>%
+  na.omit() %>%
+  group_by(state) %>%
+  summarise(avg_mean_work_travel = mean(mean_work_travel))
+
+avg_state_vals = left_join(avg_state_poverty, 
+                           left_join(
+                             avg_state_poverty_65_and_over,
+                             left_join(
+                               avg_state_poverty_under_18,
+                               avg_state_mean_work_travel,
+                               by = c("state")
+                             ),
+                             by = c("state")
+                           ), 
+                           by = c("state"))
+
+# impute missing columns based on state averages
+counties_clean = left_join(counties_wo_moe, avg_state_vals, by = c("state")) %>%
+  mutate(poverty = coalesce(poverty, avg_poverty)) %>%
+  mutate(poverty_65_and_over = coalesce(poverty_65_and_over, avg_poverty_65_and_over)) %>%
+  mutate(poverty_under_18 = coalesce(poverty_under_18, avg_poverty_under_18)) %>%
+  mutate(mean_work_travel = coalesce(mean_work_travel, avg_mean_work_travel)) %>%
+  select(-avg_poverty, -avg_poverty_65_and_over, -avg_poverty_under_18, -avg_mean_work_travel)
+
+# verify no columns with null values
+counties_clean %>%
+  summarise_all(~sum(is.na(.))) %>%
+  pivot_longer(everything(), names_to = "col_name", values_to = "null_count") %>%
+  arrange(desc(null_count))
 
 # write cleaned data to file
-write_tsv(covid_data, file = "data/clean/covid_data.tsv")
+write_csv(counties_clean, file = "data/clean/counties_clean.csv")
