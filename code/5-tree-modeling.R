@@ -5,6 +5,11 @@ library(rpart.plot)
 library(randomForest)
 library(gbm)
 library(cowplot)
+library(kableExtra)                     # for printing tables
+
+# install.packages("magick")
+# install.packages("webshot")
+# webshot::install_phantomjs()
 
 # read in the training data
 counties_train = read_csv("data/clean/counties_train.csv")
@@ -34,7 +39,12 @@ tree_variable_importance = tibble(
   feature = names(tree_fit$variable.importance),
   importance = tree_fit$variable.importance,
 ) %>%
-  write_csv("results/model-results/tree-features-table.csv")
+  rename(Feature = feature, Importance = importance) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2, linesep = "") %>%
+  kable_styling() %>%
+  save_kable(file ="results/model-results/tree-importances.png")
 
 # generate CV plot
 cp_table = printcp(tree_fit) %>% as_tibble()
@@ -76,7 +86,12 @@ tree_optimal_variable_importance = tibble(
   feature = names(tree_optimal_fit$variable.importance),
   importance = tree_optimal_fit$variable.importance,
 ) %>%
-  write_csv("results/model-results/tree-optimal-features-table.csv")
+  rename(Feature = feature, Importance = importance) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2, linesep = "") %>%
+  kable_styling() %>%
+  save_kable(file ="results/model-results/tree-optimal-importances.png")
 
 
 # =========================RUN RANDOM FOREST===================================
@@ -233,8 +248,13 @@ optimal_num_trees
 save(gbm_fit_tuned, file = "results/model-results/gbm_fit_tuned.Rda")
 
 # save boosted model feature importances
-summary(gbm_fit_tuned, n.trees = optimal_num_trees, plotit = FALSE) %>%
-  write_csv("results/model-results/gbm-feature-importances.csv")
+as_tibble(summary(gbm_fit_tuned, n.trees = optimal_num_trees, plotit = FALSE)) %>%
+  rename(Feature = var, "Relative Influence" = rel.inf) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2, linesep = "") %>%
+  kable_styling() %>%
+  save_kable(file ="results/model-results/gbm-importances.png")
 
 
 # plot partial dependence plots

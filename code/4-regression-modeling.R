@@ -1,6 +1,12 @@
 # load libraries
 library(tidyverse)
 library(glmnetUtils)                    # to run ridge and lasso
+library(kableExtra)                     # for printing tables
+
+# install.packages("magick")
+# install.packages("webshot")
+# webshot::install_phantomjs()
+
 source("code/functions/plot_glmnet.R")  # for lasso/ridge trace plots
 
 # read in the training data
@@ -75,7 +81,12 @@ beta_hat_std = extract_std_coefs(lasso_fit, counties_train)
 beta_hat_std %>%
   filter(coefficient != 0) %>%
   arrange(desc(abs(coefficient))) %>% 
-  write_csv("results/model-results/lasso-features-table.csv")
+  rename(Feature = feature, Coefficient = coefficient) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2, linesep = "") %>%
+  kable_styling() %>%
+  save_kable(file ="results/model-results/lasso-coefficients.png")
 
 
 # =========================RUN ELASTIC NET REGRESSION=======================
