@@ -3,6 +3,9 @@ library(kableExtra)                     # for printing tables
 library(maps)                           # for creating maps
 library(tidyverse)
 
+library(corrplot)
+library(RColorBrewer)
+
 # install.packages("magick")
 # install.packages("webshot")
 # webshot::install_phantomjs()
@@ -92,3 +95,45 @@ counties_train %>%
          device = "png", 
          width = 7, 
          height = 4)
+
+numeric_features = counties_train %>%
+  select_if(~is.numeric(.))
+
+# create a correlation plot between the features
+png(file="results/correlation-plot.png", res=300, width=4500, height=4500)
+numeric_features %>%
+  cor() %>%
+  corrplot(method="color")
+dev.off()
+
+# find most correlated features with median household income
+numeric_features %>%
+  cor() %>%
+  as_tibble() %>%
+  add_column(Feature = colnames(numeric_features)) %>%
+  select(Feature, median_household_income) %>%
+  rename(Correlation = median_household_income) %>%
+  filter(Feature != "median_household_income") %>%
+  arrange(desc(Correlation)) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+                  booktabs = TRUE, digits = 2,
+                  caption = 'Features with Most Positive Correlation with Median Household Income') %>%
+  kable_styling() %>%
+  save_kable(file ="results/top-10-positive-correlation.png")
+
+numeric_features %>%
+  cor() %>%
+  as_tibble() %>%
+  add_column(feature = colnames(numeric_features)) %>%
+  select(feature, median_household_income) %>%
+  rename(correlation = median_household_income) %>%
+  arrange(correlation) %>%
+  head(10) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2,
+        caption = 'Features with Most Negative Correlation with Median Household Income') %>%
+  kable_styling() %>%
+  save_kable(file ="results/top-10-negative-correlation.png")
+
+
