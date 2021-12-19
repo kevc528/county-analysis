@@ -11,6 +11,9 @@ set.seed(471)
 lm_fit = lm(formula = median_household_income ~ . -state -name -fips, 
             data = counties_train)
 
+# save the OLS fit object
+save(lm_fit, file = "results/model-results/lm_fit.Rda")
+
 
 # =========================RUN RIDGE REGRESSION=========================
 set.seed(471)
