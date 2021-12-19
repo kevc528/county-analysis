@@ -20,8 +20,7 @@ counties_train %>%
     `Median Household Income` = quantile(median_household_income, c(0, 0.25, 0.5, 0.75, 1))
   ) %>%
   kable(format = 'latex', row.names = NA,
-        booktabs = TRUE, digits = 2,
-        caption = 'Percentiles for Median Household Income') %>%
+        booktabs = TRUE, digits = 2) %>%
   kable_styling() %>%
   save_kable(file ="results/eda/median-household-income-quartiles.png")
 
@@ -56,22 +55,22 @@ counties_train %>%
 # find top 10 counties by median household income
 counties_train %>% 
   select(name, state, median_household_income) %>%
-  arrange(desc(median_household_income)) %>%
+  rename(Name = name, State = state, `Median Household Income` = median_household_income) %>%
+  arrange(desc(`Median Household Income`)) %>%
   head(10) %>%
   kable(format = 'latex', row.names = NA,
-        booktabs = TRUE, digits = 2,
-        caption = 'Top 10 Counties for Median Household Income') %>%
+        booktabs = TRUE, digits = 2, linesep = "") %>%
   kable_styling() %>%
   save_kable(file ="results/eda/top-10-counties.png")
 
 # find bottom 10 counties by median household income
 counties_train %>% 
   select(name, state, median_household_income) %>%
-  arrange(median_household_income) %>%
+  rename(Name = name, State = state, `Median Household Income` = median_household_income) %>%
+  arrange(`Median Household Income`) %>%
   head(10) %>%
   kable(format = 'latex', row.names = NA,
-        booktabs = TRUE, digits = 2,
-        caption = 'Bottom 10 Counties for Median Household Income') %>%
+        booktabs = TRUE, digits = 2, linesep = "") %>%
   kable_styling() %>%
   save_kable(file ="results/eda/bottom-10-counties.png")
 
@@ -121,8 +120,7 @@ numeric_features %>%
   arrange(desc(Correlation)) %>%
   head(10) %>%
   kable(format = 'latex', row.names = NA,
-                  booktabs = TRUE, digits = 2,
-                  caption = 'Features with Most Positive Correlation with Median Household Income') %>%
+                  booktabs = TRUE, digits = 2, linesep = "") %>%
   kable_styling() %>%
   save_kable(file ="results/eda/top-10-positive-correlation.png")
 
@@ -135,8 +133,7 @@ numeric_features %>%
   arrange(correlation) %>%
   head(10) %>%
   kable(format = 'latex', row.names = NA,
-        booktabs = TRUE, digits = 2,
-        caption = 'Features with Most Negative Correlation with Median Household Income') %>%
+        booktabs = TRUE, digits = 2, linesep = "") %>%
   kable_styling() %>%
   save_kable(file ="results/eda/top-10-negative-correlation.png")
 
