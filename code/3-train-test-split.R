@@ -1,12 +1,17 @@
-# read in the cleaned data
-covid_data = read_tsv("data/clean/covid_data.tsv")
+# load libraries
+library(tidyverse)
 
-# split into train and test (set seed here if applicable)
-test_states = c("Alabama", "Arizona", "Arkansas", 
-                "California", "Colorado", "Connecticut")
-covid_train = covid_data %>% filter(!(state %in% test_states))
-covid_test = covid_data %>% filter(state %in% test_states)
+# read in the cleaned data
+counties_clean = read_csv("data/clean/counties_clean.csv")
+
+# split into train and test
+set.seed(471)
+
+set.seed(471)
+train_samples = sample(1:nrow(counties_clean), 0.8*nrow(counties_clean))
+counties_train = counties_clean %>% filter(row_number() %in% train_samples)
+counties_test = counties_clean %>% filter(!(row_number() %in% train_samples))
 
 # save the train and test data
-write_tsv(x = covid_train, file = "data/clean/covid_train.tsv")
-write_tsv(x = covid_test, file = "data/clean/covid_test.tsv")
+write_csv(x = counties_train, file = "data/clean/counties_train.csv")
+write_csv(x = counties_test, file = "data/clean/counties_test.csv")
