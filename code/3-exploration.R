@@ -30,9 +30,11 @@ counties_train %>%
     ggplot(aes(x = median_household_income / 1000)) + 
     geom_boxplot() +
     scale_x_continuous(breaks=seq(0,150,10)) +
-    labs(x = "Median Household Income (Thousands of Dollars)", 
-         y = "Number of Counties") +
-    theme_bw()) %>%
+    labs(x = "Median Household Income (Thousands of Dollars)") +
+    theme_bw() +
+    theme(axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank())) %>%
     ggsave(filename = "results/median-household-income-boxplot.png", 
            device = "png", 
            width = 5, 
@@ -96,8 +98,10 @@ counties_train %>%
          width = 7, 
          height = 4)
 
+# find all the numerical features for correlation calculations
 numeric_features = counties_train %>%
-  select_if(~is.numeric(.))
+  select_if(~is.numeric(.)) %>%
+  select(-fips) # remove fips since it is categorical
 
 # create a correlation plot between the features
 png(file="results/correlation-plot.png", res=300, width=4500, height=4500)
@@ -136,4 +140,58 @@ numeric_features %>%
   kable_styling() %>%
   save_kable(file ="results/top-10-negative-correlation.png")
 
+# plot scatter of a few positively correlated features
+(numeric_features %>%
+  rename(`Percent Bachelors` = bachelors, `Median Household Income` = median_household_income,
+         `Percent Household with Computer` = household_has_computer) %>%
+  ggplot() + 
+  geom_point(aes(x = `Percent Bachelors`, y = `Median Household Income`,
+                 color = `Percent Household with Computer`)) +
+  theme_bw()) %>%
+  ggsave(filename = "results/positive-features-scatter.png", 
+         device = "png", 
+         width = 7, 
+         height = 4)
 
+# plot scatter of a few negative correlated features
+(numeric_features %>%
+    rename(`Poverty Rate` = poverty, `Median Household Income` = median_household_income,
+           `Unemployment Rate` = unemployment_rate) %>%
+    ggplot() + 
+    geom_point(aes(x = `Poverty Rate`, y = `Median Household Income`,
+                   color = `Unemployment Rate`)) +
+    theme_bw()) %>%
+  ggsave(filename = "results/negative-features-scatter.png", 
+         device = "png", 
+         width = 7, 
+         height = 4)
+
+# Boxplot for Household Percentage with Computers
+(counties_train %>%
+    ggplot(aes(x = household_has_computer)) + 
+    geom_boxplot() +
+    scale_x_continuous(breaks=seq(0,150,10)) +
+    labs(x = "Percentage Households with Computers") +
+    theme_bw() +
+    theme(axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank())) %>%
+  ggsave(filename = "results/household-with-computer-boxplot.png", 
+         device = "png", 
+         width = 5, 
+         height = 3)
+
+# Boxplot for Poverty Rate
+(counties_train %>%
+    ggplot(aes(x = poverty)) + 
+    geom_boxplot() +
+    scale_x_continuous(breaks=seq(0,150,10)) +
+    labs(x = "Percentage Population Below Poverty Level") +
+    theme_bw() +
+    theme(axis.title.y=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank())) %>%
+  ggsave(filename = "results/poverty-boxplot.png", 
+         device = "png", 
+         width = 5, 
+         height = 3)
