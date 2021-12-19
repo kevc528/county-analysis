@@ -23,7 +23,7 @@ counties_train %>%
         booktabs = TRUE, digits = 2,
         caption = 'Percentiles for Median Household Income') %>%
   kable_styling() %>%
-  save_kable(file ="results/median-household-income-quartiles.png")
+  save_kable(file ="results/eda/median-household-income-quartiles.png")
 
 # create boxplot of the median household income
 (counties_train %>%
@@ -35,7 +35,7 @@ counties_train %>%
     theme(axis.title.y=element_blank(),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank())) %>%
-    ggsave(filename = "results/median-household-income-boxplot.png", 
+    ggsave(filename = "results/eda/median-household-income-boxplot.png", 
            device = "png", 
            width = 5, 
            height = 3)
@@ -48,7 +48,7 @@ counties_train %>%
   labs(x = "Median Household Income (Thousands of Dollars)", 
        y = "Number of Counties") +
   theme_bw()) %>%
-  ggsave(filename = "results/median-household-income-histogram.png", 
+  ggsave(filename = "results/eda/median-household-income-histogram.png", 
        device = "png", 
        width = 5, 
        height = 3)
@@ -62,7 +62,7 @@ counties_train %>%
         booktabs = TRUE, digits = 2,
         caption = 'Top 10 Counties for Median Household Income') %>%
   kable_styling() %>%
-  save_kable(file ="results/top-10-counties.png")
+  save_kable(file ="results/eda/top-10-counties.png")
 
 # find bottom 10 counties by median household income
 counties_train %>% 
@@ -73,7 +73,7 @@ counties_train %>%
         booktabs = TRUE, digits = 2,
         caption = 'Bottom 10 Counties for Median Household Income') %>%
   kable_styling() %>%
-  save_kable(file ="results/bottom-10-counties.png")
+  save_kable(file ="results/eda/bottom-10-counties.png")
 
 # create a heatmap of median household income across the U.S.
 (map_data("county") %>%
@@ -93,7 +93,7 @@ counties_train %>%
                color="darkblue", size = .1) +
   scale_fill_gradient(low = "blue", high = "red") +
   theme_void()) %>%
-  ggsave(filename = "results/median-household-income-map.png", 
+  ggsave(filename = "results/eda/median-household-income-map.png", 
          device = "png", 
          width = 7, 
          height = 4)
@@ -104,7 +104,7 @@ numeric_features = counties_train %>%
   select(-fips) # remove fips since it is categorical
 
 # create a correlation plot between the features
-png(file="results/correlation-plot.png", res=300, width=4500, height=4500)
+png(file="results/eda/correlation-plot.png", res=300, width=4500, height=4500)
 numeric_features %>%
   cor() %>%
   corrplot(method="color")
@@ -124,7 +124,7 @@ numeric_features %>%
                   booktabs = TRUE, digits = 2,
                   caption = 'Features with Most Positive Correlation with Median Household Income') %>%
   kable_styling() %>%
-  save_kable(file ="results/top-10-positive-correlation.png")
+  save_kable(file ="results/eda/top-10-positive-correlation.png")
 
 numeric_features %>%
   cor() %>%
@@ -138,7 +138,7 @@ numeric_features %>%
         booktabs = TRUE, digits = 2,
         caption = 'Features with Most Negative Correlation with Median Household Income') %>%
   kable_styling() %>%
-  save_kable(file ="results/top-10-negative-correlation.png")
+  save_kable(file ="results/eda/top-10-negative-correlation.png")
 
 # plot scatter of a few positively correlated features
 (numeric_features %>%
@@ -148,7 +148,7 @@ numeric_features %>%
   geom_point(aes(x = `Percent Bachelors`, y = `Median Household Income`,
                  color = `Percent Household with Computer`)) +
   theme_bw()) %>%
-  ggsave(filename = "results/positive-features-scatter.png", 
+  ggsave(filename = "results/eda/positive-features-scatter.png", 
          device = "png", 
          width = 7, 
          height = 4)
@@ -161,7 +161,7 @@ numeric_features %>%
     geom_point(aes(x = `Poverty Rate`, y = `Median Household Income`,
                    color = `Unemployment Rate`)) +
     theme_bw()) %>%
-  ggsave(filename = "results/negative-features-scatter.png", 
+  ggsave(filename = "results/eda/negative-features-scatter.png", 
          device = "png", 
          width = 7, 
          height = 4)
@@ -176,7 +176,7 @@ numeric_features %>%
     theme(axis.title.y=element_blank(),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank())) %>%
-  ggsave(filename = "results/household-with-computer-boxplot.png", 
+  ggsave(filename = "results/eda/household-with-computer-boxplot.png", 
          device = "png", 
          width = 5, 
          height = 3)
@@ -191,7 +191,7 @@ numeric_features %>%
     theme(axis.title.y=element_blank(),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank())) %>%
-  ggsave(filename = "results/poverty-boxplot.png", 
+  ggsave(filename = "results/eda/poverty-boxplot.png", 
          device = "png", 
          width = 5, 
          height = 3)
