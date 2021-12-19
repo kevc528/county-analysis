@@ -8,7 +8,7 @@ library(tidyverse)
 # webshot::install_phantomjs()
 
 # read in the cleaned data
-counties_train = read_csv("data/clean/counties_clean.csv")
+counties_train = read_csv("data/clean/counties_train.csv")
 
 # create table with different percentiles of median household income
 counties_train %>% 
@@ -70,27 +70,25 @@ counties_train %>%
   kable_styling() %>%
   save_kable(file ="results/bottom-10-counties.png")
 
-# create a heatmap of case fatality rate across the U.S.
-p = map_data("county") %>%
+# create a heatmap of median household income across the U.S.
+(map_data("county") %>%
   as_tibble() %>% 
-  left_join(case_data %>% 
+  left_join(counties_train %>% 
               rename(region = state, 
-                     subregion = county,
-                     `Case Fatality Rate` = case_fatality_rate) %>% 
+                     subregion = name,
+                     `Median Household Income` = median_household_income) %>% 
               mutate(region = str_to_lower(region), 
-                     subregion = str_to_lower(subregion)), 
+                     subregion = gsub(" county| parish", "", str_to_lower(subregion))), 
             by = c("region", "subregion")) %>%
   ggplot() + 
   geom_polygon(data=map_data("state"), 
                aes(x=long, y=lat, group=group),
                color="black", fill=NA,  size = 1, alpha = .3) + 
-  geom_polygon(aes(x=long, y=lat, group=group, fill = `Case Fatality Rate`),
+  geom_polygon(aes(x=long, y=lat, group=group, fill = `Median Household Income`),
                color="darkblue", size = .1) +
   scale_fill_gradient(low = "blue", high = "red") +
-  theme_void()
-
-ggsave(filename = "results/response-map.png", 
-       plot = p, 
-       device = "png", 
-       width = 7, 
-       height = 4)
+  theme_void()) %>%
+  ggsave(filename = "results/median-household-income-map.png", 
+         device = "png", 
+         width = 7, 
+         height = 4)
