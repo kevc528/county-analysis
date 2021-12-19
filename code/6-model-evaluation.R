@@ -3,13 +3,23 @@ library(glmnetUtils)
 library(tidyverse)
 
 # load test data
-covid_test = read_tsv("data/clean/covid_test.tsv")
+counties_test = read_csv("data/clean/counties_test.csv") %>%
+  select(-name, -state, -fips)
+
+# load OLS object
+load("results/model-results/lm_fit.Rda")
 
 # load ridge fit object
 load("results/ridge_fit.Rda")
 
 # load lasso fit object
 load("results/lasso_fit.Rda")
+
+# evaluate OLS RMSE
+lm_predictions = predict(lm_fit,
+                         newdata = counties_test)
+lm_RMSE = sqrt(mean((lm_predictions-counties_test$median_household_income)^2))
+lm_RMSE
 
 # evaluate ridge RMSE
 ridge_predictions = predict(ridge_fit, 

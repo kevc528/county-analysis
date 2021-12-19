@@ -10,11 +10,12 @@ library(kableExtra)                     # for printing tables
 source("code/functions/plot_glmnet.R")  # for lasso/ridge trace plots
 
 # read in the training data
-counties_train = read_csv("data/clean/counties_train.csv")
+counties_train = read_csv("data/clean/counties_train.csv") %>% 
+  select(-state, -name, -fips)
 set.seed(471)
 
 # =========================RUN OLS REGRESSION==========================
-lm_fit = lm(formula = median_household_income ~ . -state -name -fips, 
+lm_fit = lm(formula = median_household_income ~ ., 
             data = counties_train)
 
 # save the OLS fit object
@@ -23,7 +24,7 @@ save(lm_fit, file = "results/model-results/lm_fit.Rda")
 
 # =========================RUN RIDGE REGRESSION=========================
 set.seed(471)
-ridge_fit = cv.glmnet(median_household_income ~ . -state -name -fips, 
+ridge_fit = cv.glmnet(median_household_income ~ ., 
                       alpha = 0, 
                       nfolds = 10,
                       data = counties_train)
@@ -51,7 +52,7 @@ ggsave(filename = "results/model-results/ridge-trace-plot.png",
 
 # =========================RUN LASSO REGRESSION==========================
 set.seed(471)
-lasso_fit = cv.glmnet(median_household_income ~ . -state -name -fips,   
+lasso_fit = cv.glmnet(median_household_income ~ .,   
                       alpha = 1,                 
                       nfolds = 10,               
                       data = counties_train)
@@ -88,10 +89,17 @@ beta_hat_std %>%
   kable_styling() %>%
   save_kable(file ="results/model-results/lasso-coefficients.png")
 
+beta_hat_std = extract_std_coefs(lasso_fit, counties_train)
+beta_hat_std %>%
+  filter(coefficient != 0) %>%
+  arrange(desc(abs(coefficient))) %>% 
+  rename(Feature = feature, Coefficient = coefficient) %>%
+  head(10)
+
 
 # =========================RUN ELASTIC NET REGRESSION=======================
 set.seed(471)
-elnet_fit = cva.glmnet(median_household_income ~ . -state -name -fips,   
+elnet_fit = cva.glmnet(median_household_income ~ .,   
                       nfolds = 10,               
                       data = counties_train)
 
