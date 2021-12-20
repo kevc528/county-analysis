@@ -27,7 +27,7 @@ save(tree_fit, file = "results/model-results/tree_fit.Rda")
 
 # create tree diagram
 png(width = 6, 
-    height = 4,
+    height = 3,
     res = 300,
     units = "in", 
     filename = "results/model-results/tree-plot.png")
@@ -74,7 +74,7 @@ save(tree_optimal_fit, file = "results/model-results/tree_optimal_fit.Rda")
 
 # create optimal tree diagram
 png(width = 7, 
-    height = 4,
+    height = 3,
     res = 300,
     units = "in", 
     filename = "results/model-results/tree-optimal-plot.png")
@@ -155,7 +155,7 @@ rf_fit_tuned = randomForest(median_household_income ~ .,
 save(rf_fit_tuned, file = "results/model-results/rf_fit_tuned.Rda")
 
 # variable importances
-png(width = 10, 
+png(width = 12, 
     height = 4,
     res = 300,
     units = "in", 
@@ -276,6 +276,17 @@ ggsave(filename = "results/model-results/gbm-dependence-plot.png",
        device = "png", 
        width = 8, 
        height = 6)
+
+# plot partial dependence plot for mean work travel for examination
+png(width = 6, 
+    height = 4,
+    res = 300,
+    units = "in", 
+    filename = "results/model-results/gbm-travel-dependence-plot.png")
+plot(gbm_fit_tuned,
+     i.var = "mean_work_travel",
+     n.trees = optimal_num_trees)
+dev.off()
 
 
 
