@@ -92,7 +92,7 @@ rf_tuned_RMSE
 
 # evaluate boosted model RMSE
 gbm_predictions = predict(gbm_fit_tuned, 
-                          n.trees = gbm.perf(gbm_fit_3, plot.it = FALSE), 
+                          n.trees = gbm.perf(gbm_fit_tuned, plot.it = FALSE), 
                           newdata = counties_test)
 gbm_RMSE = sqrt(mean((gbm_predictions-counties_test$median_household_income)^2))
 gbm_RMSE
@@ -102,17 +102,20 @@ intercept_prediction = mean(counties_train$median_household_income)
 intercept_RMSE = sqrt(mean((intercept_prediction-counties_test$median_household_income)^2))
 intercept_RMSE
 
-# print nice table
-performance = tibble(`Model` = c("Intercept-Only", "Ordinary-Least-Squares", "Ridge", 
-                   "Lasso", "Elastic Net", 
+# generate nice table
+tibble(`Model` = c("Intercept-Only", "Ordinary-Least-Squares Regression", "Ridge Regression", 
+                   "Lasso Regression", "Elastic Net Regression", 
                    "Default Regression Tree", "Tuned Regression Tree",
                    "Default Random Forest", "Tuned Random Forest",
                    "Boosted Model"), 
        `Test RMSE` = c(intercept_RMSE, lm_RMSE, ridge_RMSE, lasso_RMSE,
                        elnet_RMSE, tree_RMSE, tree_tuned_RMSE, 
                        rf_RMSE, rf_tuned_RMSE, gbm_RMSE)) %>%
-  arrange(desc(`Test RMSE`))
+  arrange(desc(`Test RMSE`)) %>%
+  kable(format = 'latex', row.names = NA,
+        booktabs = TRUE, digits = 2, linesep = "") %>%
+  kable_styling() %>%
+  save_kable(file ="results/model-results/model-performances.png")
 
-performance
 
 

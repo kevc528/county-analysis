@@ -28,7 +28,7 @@ avg_state_poverty_65_and_over = counties_wo_moe %>%
   summarise(avg_poverty_65_and_over = mean(poverty_65_and_over))
 
 avg_state_poverty_under_18 = counties_wo_moe %>%
-  select("state", "mean_work_travel") %>%
+  select("state", "poverty_under_18") %>%
   na.omit() %>%
   group_by(state) %>%
   summarise(avg_poverty_under_18 = mean(poverty_under_18))

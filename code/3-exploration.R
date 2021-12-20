@@ -6,9 +6,9 @@ library(tidyverse)
 library(corrplot)
 library(RColorBrewer)
 
-# install.packages("magick")
-# install.packages("webshot")
-# webshot::install_phantomjs()
+install.packages("magick")
+install.packages("webshot")
+webshot::install_phantomjs()
 
 # read in the cleaned data
 counties_train = read_csv("data/clean/counties_train.csv")
@@ -127,10 +127,10 @@ numeric_features %>%
 numeric_features %>%
   cor() %>%
   as_tibble() %>%
-  add_column(feature = colnames(numeric_features)) %>%
-  select(feature, median_household_income) %>%
-  rename(correlation = median_household_income) %>%
-  arrange(correlation) %>%
+  add_column(Feature = colnames(numeric_features)) %>%
+  select(Feature, median_household_income) %>%
+  rename(Correlation = median_household_income) %>%
+  arrange(Correlation) %>%
   head(10) %>%
   kable(format = 'latex', row.names = NA,
         booktabs = TRUE, digits = 2, linesep = "") %>%
@@ -139,10 +139,10 @@ numeric_features %>%
 
 # plot scatter of a few positively correlated features
 (numeric_features %>%
-  rename(`Percent Bachelors` = bachelors, `Median Household Income` = median_household_income,
+  rename(`Percent Bachelors Degree` = bachelors, `Median Household Income` = median_household_income,
          `Percent Household with Computer` = household_has_computer) %>%
   ggplot() + 
-  geom_point(aes(x = `Percent Bachelors`, y = `Median Household Income`,
+  geom_point(aes(x = `Percent Bachelors Degree`, y = `Median Household Income`,
                  color = `Percent Household with Computer`)) +
   theme_bw()) %>%
   ggsave(filename = "results/eda/positive-features-scatter.png", 
