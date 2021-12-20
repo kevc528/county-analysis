@@ -2,12 +2,12 @@
 library(tidyverse)
 library(glmnetUtils)                    # to run ridge and lasso
 library(kableExtra)                     # for printing tables
+source("code/functions/plot_glmnet.R")  # for lasso/ridge trace plots
 
 # install.packages("magick")
 # install.packages("webshot")
 # webshot::install_phantomjs()
 
-source("code/functions/plot_glmnet.R")  # for lasso/ridge trace plots
 
 # read in the training data
 counties_train = read_csv("data/clean/counties_train.csv") %>% 
@@ -20,6 +20,8 @@ lm_fit = lm(formula = median_household_income ~ .,
 
 # save the OLS fit object
 save(lm_fit, file = "results/model-results/lm_fit.Rda")
+
+summary(lm_fit)
 
 
 # =========================RUN RIDGE REGRESSION=========================
